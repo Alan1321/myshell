@@ -12,12 +12,18 @@ Shell setup script that replicates my terminal environment on any machine.
 ## Usage
 
 ```bash
-git clone git@github.com:Alan1321/myshell.git
-cd myshell
+git clone git@github.com:Alan1321/myshell.git ~/myshell
+cd ~/myshell
 ./setup.sh
 ```
 
-After setup, run `p10k configure` to customize your prompt.
+Add this to your `~/.bashrc` to auto-switch to zsh on login:
+
+```bash
+source ~/myshell/auto-zsh.sh
+```
+
+Then run `source ~/.bashrc` or log out and back in.
 
 ## Supported platforms
 

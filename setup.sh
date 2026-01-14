@@ -171,13 +171,6 @@ set_default_shell() {
     if [[ "$SHELL" != *"zsh"* ]]; then
         echo "Setting Zsh as default shell..."
         chsh -s "$(which zsh)" &>/dev/null || true
-
-        # Fallback: add exec zsh to .bashrc if chsh doesn't work
-        if ! grep -q "exec zsh" "$HOME/.bashrc" 2>/dev/null; then
-            echo "" >> "$HOME/.bashrc"
-            echo "# Auto-switch to zsh" >> "$HOME/.bashrc"
-            echo "exec zsh" >> "$HOME/.bashrc"
-        fi
     else
         echo "Zsh is already the default shell."
     fi
