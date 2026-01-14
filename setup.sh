@@ -125,6 +125,11 @@ setup_zshrc() {
 
     echo "Installing .zshrc..."
     cp "$SCRIPT_DIR/zshrc" "$HOME/.zshrc"
+
+    if [[ -f "$SCRIPT_DIR/p10k.zsh" ]]; then
+        echo "Installing p10k config..."
+        cp "$SCRIPT_DIR/p10k.zsh" "$HOME/.p10k.zsh"
+    fi
 }
 
 # =============================================================================
