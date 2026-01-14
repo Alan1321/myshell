@@ -96,21 +96,18 @@ install_zsh_plugins() {
 # =============================================================================
 
 install_cli_tools() {
-    echo "Installing CLI tools (skipping unavailable)..."
+    echo "Installing CLI tools..."
 
     if [[ "$PLATFORM" == "mac" ]]; then
         for tool in eza bat zoxide fzf fd ripgrep; do
-            brew install "$tool" 2>/dev/null || echo "  Skipping $tool"
+            brew install "$tool" &>/dev/null || true
         done
     else
-        sudo apt-get install -y bat zoxide fzf fd-find ripgrep 2>/dev/null || true
+        sudo apt-get install -y bat zoxide fzf fd-find ripgrep eza &>/dev/null || true
 
         # Symlinks for Debian naming
-        command -v fdfind &>/dev/null && sudo ln -sf "$(which fdfind)" /usr/local/bin/fd 2>/dev/null || true
-        command -v batcat &>/dev/null && sudo ln -sf "$(which batcat)" /usr/local/bin/bat 2>/dev/null || true
-
-        # Try eza (may not be available)
-        sudo apt-get install -y eza 2>/dev/null || echo "  Skipping eza (not in repos)"
+        command -v fdfind &>/dev/null && sudo ln -sf "$(which fdfind)" /usr/local/bin/fd &>/dev/null || true
+        command -v batcat &>/dev/null && sudo ln -sf "$(which batcat)" /usr/local/bin/bat &>/dev/null || true
     fi
 }
 
@@ -158,9 +155,9 @@ install_fonts() {
             curl -fsSL "https://github.com/romkatv/powerlevel10k-media/raw/master/$font" -o "$FONT_DIR/$(echo $font | sed 's/%20/ /g')"
         done
 
-        # Refresh font cache on Linux (skip if fc-cache not installed)
+        # Refresh font cache on Linux
         if [[ "$PLATFORM" == "linux" ]]; then
-            fc-cache -fv 2>/dev/null || echo "  fc-cache not found, fonts still installed"
+            fc-cache -f &>/dev/null || true
         fi
 
         echo "Fonts installed! Set your terminal font to 'MesloLGS NF'"
