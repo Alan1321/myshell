@@ -137,35 +137,29 @@ setup_zshrc() {
 # =============================================================================
 
 install_fonts() {
-    echo ""
-    read -p "Install MesloLGS NF fonts for Powerlevel10k? (y/n): " install_fonts
-    if [[ "$install_fonts" == "y" || "$install_fonts" == "Y" ]]; then
-        echo "Installing MesloLGS NF fonts..."
+    echo "Installing MesloLGS NF fonts..."
 
-        if [[ "$PLATFORM" == "mac" ]]; then
-            FONT_DIR="$HOME/Library/Fonts"
-        else
-            FONT_DIR="$HOME/.local/share/fonts"
-            mkdir -p "$FONT_DIR"
-        fi
+    if [[ "$PLATFORM" == "mac" ]]; then
+        FONT_DIR="$HOME/Library/Fonts"
+    else
+        FONT_DIR="$HOME/.local/share/fonts"
+        mkdir -p "$FONT_DIR"
+    fi
 
-        FONTS=(
-            "MesloLGS%20NF%20Regular.ttf"
-            "MesloLGS%20NF%20Bold.ttf"
-            "MesloLGS%20NF%20Italic.ttf"
-            "MesloLGS%20NF%20Bold%20Italic.ttf"
-        )
+    FONTS=(
+        "MesloLGS%20NF%20Regular.ttf"
+        "MesloLGS%20NF%20Bold.ttf"
+        "MesloLGS%20NF%20Italic.ttf"
+        "MesloLGS%20NF%20Bold%20Italic.ttf"
+    )
 
-        for font in "${FONTS[@]}"; do
-            curl -fsSL "https://github.com/romkatv/powerlevel10k-media/raw/master/$font" -o "$FONT_DIR/$(echo $font | sed 's/%20/ /g')"
-        done
+    for font in "${FONTS[@]}"; do
+        curl -fsSL "https://github.com/romkatv/powerlevel10k-media/raw/master/$font" -o "$FONT_DIR/$(echo $font | sed 's/%20/ /g')"
+    done
 
-        # Refresh font cache on Linux
-        if [[ "$PLATFORM" == "linux" ]]; then
-            fc-cache -f &>/dev/null || true
-        fi
-
-        echo "Fonts installed! Set your terminal font to 'MesloLGS NF'"
+    # Refresh font cache on Linux
+    if [[ "$PLATFORM" == "linux" ]]; then
+        fc-cache -f &>/dev/null || true
     fi
 }
 
