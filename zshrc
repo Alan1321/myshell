@@ -31,31 +31,39 @@ source ~/powerlevel10k/powerlevel10k.zsh-theme
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 
 # =============================================================================
-# Modern CLI Tools & Aliases
+# Modern CLI Tools & Aliases (only if installed)
 # =============================================================================
 
-# eza - better ls with icons and git status
-alias ls="eza --icons"
-alias ll="eza -la --icons --git"
-alias la="eza -a --icons"
-alias lt="eza --tree --icons --level=2"
+# eza - better ls
+if command -v eza &>/dev/null; then
+    alias ls="eza --icons"
+    alias ll="eza -la --icons --git"
+    alias la="eza -a --icons"
+    alias lt="eza --tree --icons --level=2"
+fi
 
-# bat - better cat with syntax highlighting
-alias cat="bat --paging=never"
-alias catp="bat"  # with paging
+# bat - better cat
+if command -v bat &>/dev/null; then
+    alias cat="bat --paging=never"
+    alias catp="bat"
+fi
 
-# zoxide - smarter cd that learns your habits
-eval "$(zoxide init zsh)"
-alias cd="z"
+# zoxide - smarter cd
+if command -v zoxide &>/dev/null; then
+    eval "$(zoxide init zsh)"
+    alias cd="z"
+fi
 
-# fzf - fuzzy finder (Ctrl+R for history search)
-source <(fzf --zsh)
+# fzf - fuzzy finder
+if command -v fzf &>/dev/null; then
+    source <(fzf --zsh 2>/dev/null) || true
+fi
 
 # fd - better find
-alias find="fd"
+command -v fd &>/dev/null && alias find="fd"
 
 # ripgrep - better grep
-alias grep="rg"
+command -v rg &>/dev/null && alias grep="rg"
 
 # =============================================================================
 # Zsh Plugins

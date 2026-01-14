@@ -1,7 +1,5 @@
 #!/bin/bash
 
-set -e
-
 echo "======================================"
 echo "       MyShell Setup Script"
 echo "======================================"
@@ -80,64 +78,39 @@ install_p10k() {
 }
 
 # =============================================================================
-# Install Modern CLI Tools
+# Install Zsh Plugins (autosuggestions & syntax-highlighting)
+# =============================================================================
+
+install_zsh_plugins() {
+    echo "Installing zsh plugins..."
+
+    if [[ "$PLATFORM" == "mac" ]]; then
+        brew install zsh-autosuggestions zsh-syntax-highlighting 2>/dev/null || true
+    else
+        sudo apt-get install -y zsh-autosuggestions zsh-syntax-highlighting 2>/dev/null || true
+    fi
+}
+
+# =============================================================================
+# Install CLI Tools (optional - skip if unavailable)
 # =============================================================================
 
 install_cli_tools() {
-    echo "Installing modern CLI tools..."
+    echo "Installing CLI tools (skipping unavailable)..."
 
     if [[ "$PLATFORM" == "mac" ]]; then
-        TOOLS=(
-            "eza"
-            "bat"
-            "zoxide"
-            "fzf"
-            "fd"
-            "ripgrep"
-            "zsh-autosuggestions"
-            "zsh-syntax-highlighting"
-        )
-
-        for tool in "${TOOLS[@]}"; do
-            if ! brew list "$tool" &> /dev/null; then
-                echo "  Installing $tool..."
-                brew install "$tool"
-            else
-                echo "  $tool already installed."
-            fi
+        for tool in eza bat zoxide fzf fd ripgrep; do
+            brew install "$tool" 2>/dev/null || echo "  Skipping $tool"
         done
     else
-        # Linux (Debian/Ubuntu/RPi)
-        sudo apt-get update
-        sudo apt-get install -y \
-            bat \
-            zoxide \
-            fzf \
-            fd-find \
-            ripgrep \
-            zsh-autosuggestions \
-            zsh-syntax-highlighting
+        sudo apt-get install -y bat zoxide fzf fd-find ripgrep 2>/dev/null || true
 
-        # eza requires adding the official repo
-        if ! command -v eza &> /dev/null; then
-            sudo apt-get install -y gpg
-            sudo mkdir -p /etc/apt/keyrings
-            wget -qO- https://raw.githubusercontent.com/eza-community/eza/main/deb.asc | sudo gpg --dearmor -o /etc/apt/keyrings/gierens.gpg
-            echo "deb [signed-by=/etc/apt/keyrings/gierens.gpg] http://deb.gierens.de stable main" | sudo tee /etc/apt/sources.list.d/gierens.list
-            sudo chmod 644 /etc/apt/keyrings/gierens.gpg /etc/apt/sources.list.d/gierens.list
-            sudo apt-get update
-            sudo apt-get install -y eza
-        fi
+        # Symlinks for Debian naming
+        command -v fdfind &>/dev/null && sudo ln -sf "$(which fdfind)" /usr/local/bin/fd 2>/dev/null || true
+        command -v batcat &>/dev/null && sudo ln -sf "$(which batcat)" /usr/local/bin/bat 2>/dev/null || true
 
-        # fd is named fd-find on Debian, create symlink
-        if [[ ! -L /usr/local/bin/fd ]] && command -v fdfind &> /dev/null; then
-            sudo ln -sf "$(which fdfind)" /usr/local/bin/fd
-        fi
-
-        # bat is named batcat on Debian, create symlink
-        if [[ ! -L /usr/local/bin/bat ]] && command -v batcat &> /dev/null; then
-            sudo ln -sf "$(which batcat)" /usr/local/bin/bat
-        fi
+        # Try eza (may not be available)
+        sudo apt-get install -y eza 2>/dev/null || echo "  Skipping eza (not in repos)"
     fi
 }
 
@@ -158,20 +131,7 @@ setup_zshrc() {
 }
 
 # =============================================================================
-# Set Zsh as default shell
-# =============================================================================
-
-set_default_shell() {
-    if [[ "$SHELL" != *"zsh"* ]]; then
-        echo "Setting Zsh as default shell..."
-        chsh -s "$(which zsh)"
-    else
-        echo "Zsh is already the default shell."
-    fi
-}
-
-# =============================================================================
-# Install recommended fonts (for Powerlevel10k icons)
+# Install fonts
 # =============================================================================
 
 install_fonts() {
@@ -180,7 +140,6 @@ install_fonts() {
     if [[ "$install_fonts" == "y" || "$install_fonts" == "Y" ]]; then
         echo "Installing MesloLGS NF fonts..."
 
-        FONT_DIR=""
         if [[ "$PLATFORM" == "mac" ]]; then
             FONT_DIR="$HOME/Library/Fonts"
         else
@@ -199,11 +158,25 @@ install_fonts() {
             curl -fsSL "https://github.com/romkatv/powerlevel10k-media/raw/master/$font" -o "$FONT_DIR/$(echo $font | sed 's/%20/ /g')"
         done
 
+        # Refresh font cache on Linux (skip if fc-cache not installed)
         if [[ "$PLATFORM" == "linux" ]]; then
-            fc-cache -fv
+            fc-cache -fv 2>/dev/null || echo "  fc-cache not found, fonts still installed"
         fi
 
         echo "Fonts installed! Set your terminal font to 'MesloLGS NF'"
+    fi
+}
+
+# =============================================================================
+# Set Zsh as default shell
+# =============================================================================
+
+set_default_shell() {
+    if [[ "$SHELL" != *"zsh"* ]]; then
+        echo "Setting Zsh as default shell..."
+        chsh -s "$(which zsh)"
+    else
+        echo "Zsh is already the default shell."
     fi
 }
 
@@ -219,6 +192,8 @@ main() {
     install_ohmyzsh
     echo ""
     install_p10k
+    echo ""
+    install_zsh_plugins
     echo ""
     install_cli_tools
     echo ""
